@@ -20,26 +20,12 @@ function App() {
 
 	const userIsAdmin = true;
 
-	// const getHasError = (rawBook: any, _language: string) => {
-	// 	let rb = true;
-	// 	switch (true) {
-	// 		case ['english', 'french'].includes(_language):
-	// 			rb = false;
-	// 			break;
-	// 		// case rawBook.description === undefined:
-	// 		case true:
-	// 			rb = true;
-	// 			break;
-	// 		default:
-	// 			break;
-	// 	}
-	// 	return rb;
-	// };
-
 	const getHasError = (rawBook: any, _language: string): boolean => {
-		const descriptionIsBad = rawBook.description === undefined;
+		const descriptionIsBad = !rawBook.description;
+		const numberInStockIsBad  = !rawBook.numberInStock;
+		const titleIsBad  = !rawBook.title;
 		const languageIsBad = !['english', 'french'].includes(_language);
-		if (descriptionIsBad || languageIsBad) {
+		if (descriptionIsBad || languageIsBad || numberInStockIsBad || titleIsBad) {
 			return true;
 		} else {
 			return false;

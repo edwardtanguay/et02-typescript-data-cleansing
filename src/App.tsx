@@ -20,8 +20,30 @@ function App() {
 
 	const userIsAdmin = true;
 
-	const getHasError = (rawBook: any, _language: string) => {
-		return ['english', 'french'].includes(_language) ? false : true;
+	// const getHasError = (rawBook: any, _language: string) => {
+	// 	let rb = true;
+	// 	switch (true) {
+	// 		case ['english', 'french'].includes(_language):
+	// 			rb = false;
+	// 			break;
+	// 		// case rawBook.description === undefined:
+	// 		case true:
+	// 			rb = true;
+	// 			break;
+	// 		default:
+	// 			break;
+	// 	}
+	// 	return rb;
+	// };
+
+	const getHasError = (rawBook: any, _language: string): boolean => {
+		const descriptionIsBad = rawBook.description === undefined;
+		const languageIsBad = !['english', 'french'].includes(_language);
+		if (descriptionIsBad || languageIsBad) {
+			return true;
+		} else {
+			return false;
+		}
 	};
 
 	useEffect(() => {

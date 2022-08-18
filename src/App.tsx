@@ -8,6 +8,12 @@ const url =
 function App() {
 	const [books, setBooks] = useState<IBook[]>([]);
 
+	enum Status {
+		hasError,
+		noError,
+		unknown,
+	}
+
 	interface IBook {
 		id: number;
 		title: string;
@@ -15,31 +21,63 @@ function App() {
 		language: string;
 		yearMonth: string;
 		numberInStock: number;
-		hasError: boolean;
+		status: Status;
 	}
 
 	const userIsAdmin = true;
 
-	const getHasError = (rawBook: any, _language: string): boolean => {
+	const getHasError = (
+		rawBook: any,
+		_language: string,
+		_numberInStock: number | undefined
+	): Status => {
+		const idIsBad = typeof rawBook.id !== 'number';
 		const descriptionIsBad = !rawBook.description;
-		const numberInStockIsBad  = !rawBook.numberInStock;
-		const titleIsBad  = !rawBook.title;
+		let numberInStockIsBad = !rawBook.numberInStock;
+		if (_numberInStock === undefined) {
+			numberInStockIsBad = true;
+		}
+		const titleIsBad = !rawBook.title;
+		const yearMonthIsBad = !rawBook.yearMonth;
 		const languageIsBad = !['english', 'french'].includes(_language);
-		if (descriptionIsBad || languageIsBad || numberInStockIsBad || titleIsBad) {
-			return true;
+		if (
+			idIsBad ||
+			descriptionIsBad ||
+			languageIsBad ||
+			numberInStockIsBad ||
+			yearMonthIsBad ||
+			titleIsBad
+		) {
+			return Status.hasError;
 		} else {
-			return false;
+			return Status.noError;
 		}
 	};
 
 	useEffect(() => {
 		(async () => {
 			const rawBooks: any[] = (await axios.get(url)).data;
+
 			const _books: IBook[] = [];
 			rawBooks.forEach((rawBook: any) => {
+				// language
 				const _language = rawBook.language
 					? rawBook.language
 					: 'english';
+
+				// numberInStock
+				let _numberInStock: number | undefined = 0;
+				if (typeof rawBook.numberInStock === 'string') {
+					_numberInStock = Number(rawBook.numberInStock);
+					console.log(rawBook.numberInStock);
+					console.log(_numberInStock);
+					console.log('---');
+					if (Number.isNaN(_numberInStock)) {
+						_numberInStock = undefined;
+						console.log('HERE');
+					}
+				}
+
 				const book: IBook = {
 					id: rawBook.id,
 					title: rawBook.title,
@@ -47,24 +85,30 @@ function App() {
 					language: _language,
 					yearMonth: rawBook.yearMonth,
 					numberInStock: rawBook.numberInStock,
-					hasError: getHasError(rawBook, _language),
+					status: getHasError(rawBook, _language, _numberInStock),
 				};
 				_books.push(book);
 			});
+
+
 			setBooks(_books);
 		})();
 	}, []);
 
 	const bookIsAllowedToShow = (book: IBook) => {
-		if (!book.hasError || userIsAdmin) {
+		if (userIsAdmin) {
 			return true;
 		} else {
-			return false;
+			if (book.status === Status.hasError) {
+				return false;
+			} else {
+				return true;
+			}
 		}
 	};
 
 	const getClassesForBook = (book: IBook) => {
-		if (userIsAdmin && book.hasError) {
+		if (userIsAdmin && book.status === Status.hasError) {
 			return 'book error';
 		} else {
 			return 'book allowed';
@@ -87,6 +131,7 @@ function App() {
 								>
 									<legend>ID: {book.id}</legend>
 
+									<div>{Status[book.status]}</div>
 									<div className="row">
 										<label>Title</label>
 										<div>{book.title}</div>

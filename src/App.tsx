@@ -6,11 +6,33 @@ const url =
 	'https://edwardtanguay.netlify.app/share/techBooksUnstructured.json';
 
 function App() {
-	const [books, setBooks] = useState([]);
+	const [books, setBooks] = useState<IBook[]>([]);
+
+	interface IBook {
+		id: number;
+		title: string;
+		description: string;
+		language: string;
+		yearMonth: string;
+		numberInStock: number;
+	}
 
 	useEffect(() => {
 		(async () => {
-			setBooks((await axios.get(url)).data);
+			const rawBooks:any[] = (await axios.get(url)).data;
+			const _books: IBook[] = [];
+			rawBooks.forEach((rawBook:any) => {
+				const book: IBook = {
+					id: rawBook.id,
+					title: rawBook.title,
+					description: rawBook.description,
+					language: rawBook.language,
+					yearMonth: rawBook.yearMonth,
+					numberInStock: rawBook.numberInStock,
+				}
+				_books.push(book);
+			});
+			setBooks(_books);
 		})();
 	}, []);
 

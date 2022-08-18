@@ -18,21 +18,22 @@ function App() {
 		hasError: boolean;
 	}
 
-	const userIsAdmin = true;
+	const userIsAdmin = false;
 
 	useEffect(() => {
 		(async () => {
 			const rawBooks: any[] = (await axios.get(url)).data;
 			const _books: IBook[] = [];
 			rawBooks.forEach((rawBook: any) => {
+				const _language = rawBook.language ? rawBook.language : 'english';
 				const book: IBook = {
 					id: rawBook.id,
 					title: rawBook.title,
 					description: rawBook.description,
-					language: rawBook.language ? rawBook.language : 'english',
+					language: _language,
 					yearMonth: rawBook.yearMonth,
 					numberInStock: rawBook.numberInStock,
-					hasError: ['english', 'french'].includes(rawBook.language)
+					hasError: ['english', 'french'].includes(_language)
 						? false
 						: true,
 				};
@@ -41,6 +42,14 @@ function App() {
 			setBooks(_books);
 		})();
 	}, []);
+
+	const bookIsAllowedToShow = (book: IBook) => {
+		if (!book.hasError || userIsAdmin) {
+			return true;
+		} else {
+			return false;
+		}
+	}
 
 	return (
 		<div className="App">
@@ -51,7 +60,7 @@ function App() {
 				{books.map((book, i) => {
 					return (
 						<>
-							{!book.hasError && (
+							{bookIsAllowedToShow(book) && (
 								<fieldset className="book" key={i}>
 									<legend>ID: {book.id}</legend>
 

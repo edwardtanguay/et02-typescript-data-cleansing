@@ -18,14 +18,16 @@ function App() {
 		hasError: boolean;
 	}
 
-	const userIsAdmin = false;
+	const userIsAdmin = true;
 
 	useEffect(() => {
 		(async () => {
 			const rawBooks: any[] = (await axios.get(url)).data;
 			const _books: IBook[] = [];
 			rawBooks.forEach((rawBook: any) => {
-				const _language = rawBook.language ? rawBook.language : 'english';
+				const _language = rawBook.language
+					? rawBook.language
+					: 'english';
 				const book: IBook = {
 					id: rawBook.id,
 					title: rawBook.title,
@@ -49,7 +51,15 @@ function App() {
 		} else {
 			return false;
 		}
-	}
+	};
+
+	const getClassesForBook = (book: IBook) => {
+		if (userIsAdmin && book.hasError) {
+			return 'book error';
+		} else {
+			return 'book allowed';
+		}
+	};
 
 	return (
 		<div className="App">
@@ -61,7 +71,10 @@ function App() {
 					return (
 						<>
 							{bookIsAllowedToShow(book) && (
-								<fieldset className="book" key={i}>
+								<fieldset
+									className={getClassesForBook(book)}
+									key={i}
+								>
 									<legend>ID: {book.id}</legend>
 
 									<div className="row">

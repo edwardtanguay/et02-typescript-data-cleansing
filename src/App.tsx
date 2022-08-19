@@ -60,6 +60,7 @@ function App() {
 
 			const _books: IBook[] = [];
 			rawBooks.forEach((rawBook: any) => {
+
 				// language
 				const _language = rawBook.language
 					? rawBook.language
@@ -69,12 +70,8 @@ function App() {
 				let _numberInStock: number | undefined = 0;
 				if (typeof rawBook.numberInStock === 'string') {
 					_numberInStock = Number(rawBook.numberInStock);
-					console.log(rawBook.numberInStock);
-					console.log(_numberInStock);
-					console.log('---');
 					if (Number.isNaN(_numberInStock)) {
 						_numberInStock = undefined;
-						console.log('HERE');
 					}
 				}
 
@@ -131,7 +128,6 @@ function App() {
 								>
 									<legend>ID: {book.id}</legend>
 
-									<div>{Status[book.status]}</div>
 									<div className="row">
 										<label>Title</label>
 										<div>{book.title}</div>
